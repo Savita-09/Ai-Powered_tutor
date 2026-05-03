@@ -1,0 +1,513 @@
+/* ── EduAI Tutor — Global Styles ─────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --border: #30363d;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #10b981;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --text: #e6edf3;
+    --text-muted: #7d8590;
+    --text-dim: #484f58;
+    --radius: 12px;
+    --radius-lg: 20px;
+}
+
+/* ── Base ── */
+html,
+body,
+[class*="css"] {
+    font-family: 'Sora', sans-serif !important;
+    background-color: var(--bg) !important;
+    color: var(--text) !important;
+}
+
+.stApp {
+    background: var(--bg) !important;
+}
+
+/* ── Sidebar ── */
+[data-testid="stSidebar"] {
+    background: var(--surface) !important;
+    border-right: 1px solid var(--border) !important;
+}
+
+.sidebar-logo {
+    font-size: 1.6rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    padding: 1rem 0 0.5rem;
+    letter-spacing: -0.5px;
+}
+
+/* ── Buttons ── */
+.stButton>button {
+    background: linear-gradient(135deg, var(--accent), #6d28d9) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: var(--radius) !important;
+    font-family: 'Sora', sans-serif !important;
+    font-weight: 500 !important;
+    padding: 0.55rem 1.2rem !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3) !important;
+}
+
+.stButton>button:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 16px rgba(124, 58, 237, 0.45) !important;
+    background: linear-gradient(135deg, #8b5cf6, var(--accent)) !important;
+}
+
+/* ── Text Inputs ── */
+.stTextInput>div>div>input,
+.stSelectbox>div>div,
+.stRadio>div {
+    background: var(--surface2) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    color: var(--text) !important;
+    font-family: 'Sora', sans-serif !important;
+}
+
+/* ── Hero Section ── */
+.hero-section {
+    text-align: center;
+    padding: 3rem 2rem 2rem;
+    background: radial-gradient(ellipse at top, rgba(124, 58, 237, 0.15) 0%, transparent 60%),
+        linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    margin-bottom: 2rem;
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #a78bfa, var(--accent2), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -1px;
+    margin-bottom: 0.5rem;
+}
+
+.hero-subtitle {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+}
+
+.hero-desc {
+    font-size: 1rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+}
+
+/* ── Feature Cards ── */
+.feature-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem 1.5rem;
+    text-align: center;
+    transition: all 0.25s ease;
+    height: 100%;
+}
+
+.feature-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.2);
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.feature-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.feature-desc {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+/* ── Architecture Box ── */
+.arch-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    text-align: center;
+}
+
+.arch-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 0.75rem 0;
+}
+
+.arch-agents {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin: 0.75rem 0;
+    flex-wrap: wrap;
+}
+
+.arch-node {
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.arch-node.student {
+    background: rgba(6, 182, 212, 0.15);
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+}
+
+.arch-node.router {
+    background: rgba(124, 58, 237, 0.15);
+    border: 1px solid var(--accent);
+    color: #a78bfa;
+}
+
+.arch-node.agent1 {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid var(--accent3);
+    color: var(--accent3);
+}
+
+.arch-node.agent2 {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid var(--warn);
+    color: var(--warn);
+}
+
+.arch-node.agent3 {
+    background: rgba(6, 182, 212, 0.1);
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+}
+
+.arch-node.output {
+    background: rgba(124, 58, 237, 0.15);
+    border: 1px solid var(--accent);
+    color: #c4b5fd;
+    font-weight: 600;
+}
+
+.arch-arrow {
+    color: var(--text-muted);
+    font-size: 1.2rem;
+}
+
+/* ── Page Header ── */
+.page-header {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    margin-bottom: 0.25rem;
+}
+
+.page-sub {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+/* ── Chat Bubbles ── */
+.chat-bubble {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin: 0.75rem 0;
+    animation: fadeUp 0.3s ease;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.user-bubble {
+    flex-direction: row-reverse;
+}
+
+.bubble-icon {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+
+.bubble-content {
+    padding: 0.9rem 1.2rem;
+    border-radius: var(--radius);
+    line-height: 1.65;
+    max-width: 85%;
+    font-size: 0.9rem;
+}
+
+.user-bubble .bubble-content {
+    background: linear-gradient(135deg, var(--accent), #6d28d9);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.ai-bubble .bubble-content {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-bottom-left-radius: 4px;
+}
+
+/* ── Quiz Cards ── */
+.quiz-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin: 1rem 0;
+    transition: border-color 0.2s;
+}
+
+.quiz-card.correct-card {
+    border-color: var(--accent3);
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.quiz-card.wrong-card {
+    border-color: var(--danger);
+    background: rgba(239, 68, 68, 0.05);
+}
+
+/* ── Score Banner ── */
+.score-banner {
+    text-align: center;
+    padding: 1.25rem 2rem;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(6, 182, 212, 0.2));
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-lg);
+    font-size: 1.4rem;
+    color: var(--text);
+    margin: 1rem 0;
+}
+
+/* ── Empty State ── */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-lg);
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+/* ── KPI Cards ── */
+.kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1rem;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.kpi-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.kpi-icon {
+    font-size: 1.75rem;
+    margin-bottom: 0.4rem;
+}
+
+.kpi-val {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace !important;
+}
+
+.kpi-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.2rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ── Progress Bars ── */
+.progress-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0.75rem 0;
+    flex-wrap: wrap;
+}
+
+.progress-label {
+    min-width: 140px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.progress-bar-bg {
+    flex: 1;
+    height: 10px;
+    background: var(--surface2);
+    border-radius: 99px;
+    min-width: 120px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.6s ease;
+}
+
+.progress-pct {
+    min-width: 42px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace !important;
+}
+
+.progress-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* ── Area Tags ── */
+.area-tag {
+    display: inline-block;
+    padding: 0.35rem 0.85rem;
+    border-radius: 99px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin: 0.3rem 0.2rem;
+}
+
+.strong-tag {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid var(--accent3);
+    color: var(--accent3);
+}
+
+.weak-tag {
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid var(--warn);
+    color: var(--warn);
+}
+
+/* ── Feedback Box ── */
+.feedback-box {
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem 1.5rem;
+    line-height: 1.75;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+    box-shadow: 0 0 24px rgba(124, 58, 237, 0.12);
+}
+
+/* ── Stat Card Small ── */
+.stat-card-small {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    font-size: 0.85rem;
+    line-height: 1.9;
+    color: var(--text-muted);
+}
+
+/* ── Streamlit Overrides ── */
+.stSelectbox label,
+.stTextInput label,
+.stRadio label,
+.stSlider label,
+.stForm label {
+    color: var(--text-muted) !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+}
+
+div[data-testid="stFormSubmitButton"]>button {
+    background: linear-gradient(135deg, var(--accent2), #0891b2) !important;
+}
+
+.stAlert {
+    border-radius: var(--radius) !important;
+}
+
+hr {
+    border-color: var(--border) !important;
+}
+
+h3 {
+    color: var(--text) !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.3px !important;
+}
+
+/* ── Spinner ── */
+.stSpinner>div {
+    border-top-color: var(--accent) !important;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--surface2);
+    border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--border);
+}
