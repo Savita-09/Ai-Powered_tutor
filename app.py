@@ -279,25 +279,25 @@ def render_home():
             st.rerun()
 
     # Architecture diagram
-    st.markdown("---")
-    st.markdown("### 🏗️ Multi-Agent Architecture")
-    st.markdown("""
-    <div class="arch-box">
-        <div class="arch-row">
-            <div class="arch-node student">👤 Student Input</div>
-            <div class="arch-arrow">→</div>
-            <div class="arch-node router">🔀 Orchestrator</div>
-        </div>
-        <div class="arch-agents">
-            <div class="arch-node agent1">🎓 Explainer Agent<br><small>Concept explanation & Q&A</small></div>
-            <div class="arch-node agent2">📝 Quiz Agent<br><small>NLP question generation</small></div>
-            <div class="arch-node agent3">📊 Tracker Agent<br><small>Clustering & personalization</small></div>
-        </div>
-        <div class="arch-row">
-            <div class="arch-node output">🎯 Adaptive Learning Path</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+   # st.markdown("---")
+   # st.markdown("### 🏗️ Multi-Agent Architecture")
+   # st.markdown("""
+   # <div class="arch-box">
+    #    <div class="arch-row">
+     #       <div class="arch-node student">👤 Student Input</div>
+      #      <div class="arch-arrow">→</div>
+       #     <div class="arch-node router">🔀 Orchestrator</div>
+        #</div>
+        #<div class="arch-agents">
+         #   <div class="arch-node agent1">🎓 Explainer Agent<br><small>Concept explanation & Q&A</small></div>
+          #  <div class="arch-node agent2">📝 Quiz Agent<br><small>NLP question generation</small></div>
+           # <div class="arch-node agent3">📊 Tracker Agent<br><small>Clustering & personalization</small></div>
+        #</div>
+        #<div class="arch-row">
+         #   <div class="arch-node output">🎯 Adaptive Learning Path</div>
+        #</div>
+    #</div>
+    #""", unsafe_allow_html=True)
 
 
 def render_tutor():
