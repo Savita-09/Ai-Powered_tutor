@@ -19,7 +19,7 @@ with open("style.css") as f:
 
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_API_KEY = "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"
+GROQ_API_KEY = "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"
 
 MODEL = "llama-3.3-70b-versatile"
 
