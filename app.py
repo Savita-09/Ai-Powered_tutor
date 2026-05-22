@@ -5,6 +5,396 @@ import random
 from datetime import datetime
 import requests
 
+from crewai import Agent, Task, Crew, Process
+from crewai.tools import BaseTool
+from pydantic import Field
+from typing import Type, List
+
+
+
+class GroqLLM:
+    """Custom LLM wrapper for Groq API compatible with CrewAI."""
+    
+    def __init__(self, api_key: str, model: str = "llama-3.3-70b-versatile"):
+        self.api_key = api_key
+        self.model = model
+        self.api_url = "https://api.groq.com/openai/v1/chat/completions"
+    
+    def __call__(self, messages: list, **kwargs) -> str:
+        """Make API call to Groq."""
+        try:
+            resp = requests.post(
+                self.api_url,
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {self.api_key}",
+                },
+                json={
+                    "model": self.model,
+                    "max_tokens": kwargs.get("max_tokens", 1500),
+                    "messages": messages,
+                },
+                timeout=30,
+            )
+            data = resp.json()
+            if "choices" in data and data["choices"]:
+                return data["choices"][0]["message"]["content"]
+            return f"Error: {data.get('error', {}).get('message', 'No response')}"
+        except Exception as e:
+            return f"Error: {str(e)}"
+
+
+llm = GroqLLM(api_key="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")
+
+
+class ExplanationTool(BaseTool):
+    """Tool for explaining concepts to students."""
+    name: str = "concept_explainer"
+    description: str = "Explains academic concepts in a clear, engaging manner with examples and analogies."
+    
+    def _run(self, topic: str, subject: str, difficulty: str, question: str, chat_history: list) -> str:
+        """Execute concept explanation."""
+        system_prompt = f"""You are an expert, enthusiastic tutor specializing in {subject}.
+Your role is to explain concepts clearly and engagingly at a {difficulty} level.
+Current topic: {topic}
+
+Guidelines:
+- Use simple analogies and real-world examples
+- Break complex ideas into digestible steps
+- Use emojis sparingly to make content friendly
+- Format with clear headings and bullet points where helpful
+- Encourage curiosity and questions
+- Adapt explanation depth to {difficulty} level
+- Keep responses focused and not too long (300-400 words max unless more depth is asked)"""
+        
+        messages = [{"role": "system", "content": system_prompt}]
+        for msg in chat_history[-8:]:
+            messages.append({"role": msg["role"], "content": msg["content"]})
+        messages.append({"role": "user", "content": question})
+        
+        result = llm(messages)
+        return result
+
+
+class QuizGeneratorTool(BaseTool):
+    """Tool for generating quiz questions."""
+    name: str = "quiz_generator"
+    description: str = "Generates multiple-choice quiz questions in JSON format with explanations."
+    
+    def _run(self, topic: str, subject: str, difficulty: str, num_questions: int = 5) -> str:
+        """Execute quiz generation."""
+        system_prompt = """You are a quiz designer. Generate multiple-choice questions strictly as JSON.
+Return ONLY a JSON array, no markdown, no extra text."""
+        
+        prompt = f"""Create {num_questions} multiple-choice quiz questions about "{topic}" in {subject} at {difficulty} level.
+
+Return ONLY this JSON format (no markdown, no explanation):
+[
+  {{
+    "question": "Question text here?",
+    "options": ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"],
+    "answer": "A) Option 1",
+    "explanation": "Brief explanation of why this is correct."
+  }}
+]"""
+        
+        result = llm([{"role": "system", "content": system_prompt}, 
+                      {"role": "user", "content": prompt}], max_tokens=2000)
+        return result
+
+
+class ProgressAnalysisTool(BaseTool):
+    """Tool for analyzing student progress and providing feedback."""
+    name: str = "progress_analyzer"
+    description: str = "Analyzes student performance data and provides personalized learning recommendations."
+    
+    def _run(self, student_data: dict) -> str:
+        """Execute progress analysis."""
+        system_prompt = """You are a learning analytics expert who gives personalized, motivating feedback.
+Analyze student performance and provide actionable insights."""
+        
+        prompt = f"""Analyze this student's learning data and provide personalized feedback:
+
+Student: {student_data.get('name', 'Student')}
+Subject: {student_data.get('subject')}
+Topic: {student_data.get('topic')}
+Difficulty Level: {student_data.get('difficulty')}
+Quiz Score: {student_data.get('score', 0)}/{student_data.get('total', 0)} ({student_data.get('pct', 0):.0f}%)
+Concepts Learned: {', '.join(student_data.get('concepts', [])) or 'None recorded'}
+Weak Areas: {', '.join(student_data.get('weak', [])) or 'None identified'}
+Strong Areas: {', '.join(student_data.get('strong', [])) or 'None identified'}
+Total Sessions: {student_data.get('sessions', 0)}
+Overall Accuracy: {student_data.get('accuracy', 0):.0f}%
+
+Provide:
+1. 🎯 **Performance Summary** (2-3 sentences)
+2. 💪 **Strengths** (bullet points)
+3. 🔧 **Areas to Improve** (bullet points)
+4. 📚 **Personalized Next Steps** (3-4 specific recommendations)
+5. 🗺️ **Suggested Learning Path** (3 topics to tackle next in order)
+
+Be encouraging, specific, and actionable."""
+        
+        result = llm([{"role": "system", "content": system_prompt}, 
+                      {"role": "user", "content": prompt}])
+        return result
+
+
+class ResourceFinderTool(BaseTool):
+    """Tool for finding additional learning resources."""
+    name: str = "resource_finder"
+    description: str = "Suggests additional learning resources like videos, articles, and practice problems."
+    
+    def _run(self, topic: str, subject: str, difficulty: str) -> str:
+        """Execute resource finding."""
+        system_prompt = """You are an educational resource curator. Your job is to recommend high-quality 
+learning resources for students based on their topic and difficulty level."""
+        
+        prompt = f"""Suggest 5-7 curated learning resources for learning about "{topic}" in {subject} 
+at the {difficulty} level.
+
+For each resource provide:
+- Type (Video/Article/Practice/Book)
+- Title
+- Brief description (1-2 sentences)
+- Why it's helpful for this topic at this level
+
+Format as a clean list with emojis."""
+        
+        result = llm([{"role": "system", "content": system_prompt}, 
+                      {"role": "user", "content": prompt}])
+        return result
+
+
+explanation_tool = ExplanationTool()
+quiz_generator_tool = QuizGeneratorTool()
+progress_analysis_tool = ProgressAnalysisTool()
+resource_finder_tool = ResourceFinderTool()
+
+
+
+def create_tutor_agent() -> Agent:
+    """Create the Tutor Agent with CrewAI."""
+    return Agent(
+        role="Expert Tutor Agent",
+        goal="Help students understand complex concepts through clear explanations, analogies, and real-world examples.",
+        backstory="""You are an enthusiastic and patient educational expert with decades of 
+        teaching experience across multiple subjects. You specialize in breaking down complex 
+        topics into digestible, engaging lessons. Your teaching philosophy focuses on building 
+        strong foundations through understanding, not memorization. You use real-world analogies 
+        and examples to make abstract concepts tangible and memorable.""",
+        verbose=True,
+        allow_delegation=False,
+        tools=[explanation_tool, resource_finder_tool],
+        llm=llm
+    )
+
+
+def create_quiz_agent() -> Agent:
+    """Create the Quiz Generator Agent with CrewAI."""
+    return Agent(
+        role="Quiz Design Agent",
+        goal="Create engaging, challenging, and accurate multiple-choice quizzes that test student understanding effectively.",
+        backstory="""You are an expert assessment designer specializing in creating effective 
+        multiple-choice questions. You understand how to phrase questions to test genuine 
+        comprehension while avoiding ambiguous or misleading options. Your questions are 
+        carefully crafted to identify misconceptions and reinforce correct understanding 
+        through detailed explanations.""",
+        verbose=True,
+        allow_delegation=False,
+        tools=[quiz_generator_tool],
+        llm=llm
+    )
+
+
+def create_progress_agent() -> Agent:
+    """Create the Progress Tracker Agent with CrewAI."""
+    return Agent(
+        role="Learning Analytics Agent",
+        goal="Analyze student performance data to provide actionable insights and personalized learning recommendations.",
+        backstory="""You are a learning analytics expert with deep knowledge of educational 
+        psychology and adaptive learning systems. You excel at identifying patterns in student 
+        performance, recognizing areas of struggle, and recommending personalized learning 
+        paths. Your feedback is always encouraging, specific, and actionable.""",
+        verbose=True,
+        allow_delegation=False,
+        tools=[progress_analysis_tool],
+        llm=llm
+    )
+
+
+def create_orchestrator_agent() -> Agent:
+    """Create an Orchestrator Agent that coordinates other agents."""
+    return Agent(
+        role="Learning Orchestrator",
+        goal="Coordinate the tutoring system to provide seamless, personalized learning experiences.",
+        backstory="""You are the conductor of an educational orchestra, ensuring all components 
+        work in harmony. You understand when to escalate to quiz generation for assessment, 
+        when to dive deeper with the tutor, and when to provide progress feedback. Your role 
+        is to ensure students receive the right support at the right time.""",
+        verbose=True,
+        allow_delegation=True,  
+        llm=llm
+    )
+
+
+
+def create_and_run_tutor_crew(topic: str, subject: str, difficulty: str, 
+                              question: str, chat_history: list) -> str:
+    """Create a crew for tutoring and execute it."""
+    tutor_agent = create_tutor_agent()
+    
+    # Create task
+    tutoring_task = Task(
+        description=f"""Explain the concept of '{topic}' in {subject} at {difficulty} level.
+        
+        Student Question: {question}
+        
+        Previous conversation context:
+        {json.dumps(chat_history[-6:] if chat_history else [])}
+        
+        Provide a clear, engaging explanation with examples.""",
+        agent=tutor_agent,
+        expected_output="A clear, well-structured explanation of the concept with examples."
+    )
+    
+    crew = Crew(
+        agents=[tutor_agent],
+        tasks=[tutoring_task],
+        process=Process.sequential,
+        verbose=True
+    )
+    
+    result = crew.kickoff()
+    return str(result)
+
+
+def create_and_run_quiz_crew(topic: str, subject: str, difficulty: str, 
+                             num_questions: int = 5) -> list:
+    """Create a crew for quiz generation and execute it."""
+    quiz_agent = create_quiz_agent()
+    
+    quiz_task = Task(
+        description=f"""Generate {num_questions} multiple-choice quiz questions about '{topic}' 
+        in {subject} at {difficulty} level.
+        
+        Return ONLY a JSON array with this exact format:
+        [
+          {{
+            "question": "Question text?",
+            "options": ["A) Option 1", "B) Option 2", "C) Option 3", "D) Option 4"],
+            "answer": "A) Option 1",
+            "explanation": "Why this answer is correct."
+          }}
+        ]
+        
+        No markdown, no explanation outside the JSON.""",
+        agent=quiz_agent,
+        expected_output="A JSON array of quiz questions."
+    )
+ 
+    crew = Crew(
+        agents=[quiz_agent],
+        tasks=[quiz_task],
+        process=Process.sequential,
+        verbose=True
+    )
+    
+
+    result = crew.kickoff()
+
+    try:
+        raw = str(result).strip().replace("```json", "").replace("```", "").strip()
+        questions = json.loads(raw)
+        return questions if isinstance(questions, list) else []
+    except:
+        try:
+            start = raw.find("[")
+            end = raw.rfind("]") + 1
+            if start != -1 and end > start:
+                return json.loads(raw[start:end])
+        except:
+            pass
+        return []
+
+
+def create_and_run_progress_crew(student_data: dict) -> str:
+    """Create a crew for progress analysis and execute it."""
+    progress_agent = create_progress_agent()
+    
+
+    analysis_task = Task(
+        description=f"""Analyze the student's learning data and provide comprehensive feedback.
+        
+        Student Data:
+        {json.dumps(student_data, indent=2)}
+        
+        Provide:
+        1. Performance Summary
+        2. Strengths
+        3. Areas to Improve
+        4. Personalized Next Steps
+        5. Suggested Learning Path""",
+        agent=progress_agent,
+        expected_output="Comprehensive progress analysis with recommendations."
+    )
+    
+
+    crew = Crew(
+        agents=[progress_agent],
+        tasks=[analysis_task],
+        process=Process.sequential,
+        verbose=True
+    )
+    
+    result = crew.kickoff()
+    return str(result)
+
+
+def create_multi_agent_learning_crew(topic: str, subject: str, difficulty: str,
+                                     student_question: str = None) -> str:
+    """Create a collaborative crew with multiple specialized agents."""
+    tutor_agent = create_tutor_agent()
+    resource_agent = Agent(
+        role="Resource Curator",
+        goal="Find the best additional learning resources for students.",
+        backstory="""You are an expert at finding high-quality educational resources including 
+        videos, articles, tutorials, and practice exercises. You know the best sources for 
+        learning any topic.""",
+        verbose=True,
+        tools=[resource_finder_tool],
+        llm=llm
+    )
+    
+    explanation_task = Task(
+        description=f"""Explain '{topic}' in {subject} at {difficulty} level.
+        
+        Student Question: {student_question or f'Explain {topic} comprehensively'}
+        
+        Provide clear explanation with examples and analogies.""",
+        agent=tutor_agent,
+        expected_output="Comprehensive concept explanation."
+    )
+    
+    resources_task = Task(
+        description=f"""Find additional learning resources for '{topic}' in {subject} 
+        at {difficulty} level.""",
+        agent=resource_agent,
+        expected_output="List of curated learning resources."
+    )
+    
+
+    crew = Crew(
+        agents=[tutor_agent, resource_agent],
+        tasks=[explanation_task, resources_task],
+        process=Process.sequential, 
+        verbose=True
+    )
+    
+    result = crew.kickoff()
+    return str(result)
+
+
 
 st.set_page_config(
     page_title="EduAI Tutor",
@@ -19,7 +409,7 @@ with open("style.css") as f:
 
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_API_KEY = "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"
+GROQ_API_KEY = "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"
 
 MODEL = "llama-3.3-70b-versatile"
 
@@ -32,6 +422,8 @@ SUBJECTS = {
 }
 
 DIFFICULTY_LEVELS = ["Beginner", "Intermediate", "Advanced"]
+
+USE_CREWAI = True  
 
 def init_state():
     defaults = {
@@ -278,26 +670,6 @@ def render_home():
             st.session_state.page = "progress"
             st.rerun()
 
-    # Architecture diagram
-   # st.markdown("---")
-   # st.markdown("### 🏗️ Multi-Agent Architecture")
-   # st.markdown("""
-   # <div class="arch-box">
-    #    <div class="arch-row">
-     #       <div class="arch-node student">👤 Student Input</div>
-      #      <div class="arch-arrow">→</div>
-       #     <div class="arch-node router">🔀 Orchestrator</div>
-        #</div>
-        #<div class="arch-agents">
-         #   <div class="arch-node agent1">🎓 Explainer Agent<br><small>Concept explanation & Q&A</small></div>
-          #  <div class="arch-node agent2">📝 Quiz Agent<br><small>NLP question generation</small></div>
-           # <div class="arch-node agent3">📊 Tracker Agent<br><small>Clustering & personalization</small></div>
-        #</div>
-        #<div class="arch-row">
-         #   <div class="arch-node output">🎯 Adaptive Learning Path</div>
-        #</div>
-    #</div>
-    #""", unsafe_allow_html=True)
 
 
 def render_tutor():
@@ -468,7 +840,7 @@ def render_quiz():
                 if topic not in st.session_state.weak_areas:
                     st.session_state.weak_areas.append(topic)
 
-            # Update progress dict
+        
             st.session_state.progress[topic] = {
                 "score": score, "total": total, "pct": pct,
                 "difficulty": st.session_state.difficulty,
