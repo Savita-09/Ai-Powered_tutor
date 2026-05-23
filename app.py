@@ -85,8 +85,7 @@ def _groq_post(messages: list, max_tokens: int = 1500) -> str:
     except Exception as e:
         return f"⚠️ API Error: {str(e)}"
 
-
-def call_claude(system_prompt: str, user_message: str, max_tokens: int = 1500) -> str:
+def call_groq(system_prompt: str, user_message: str, max_tokens: int = 1500) -> str:
     """Single-turn call via Groq."""
     messages = [
         {"role": "system", "content": system_prompt},
@@ -95,7 +94,7 @@ def call_claude(system_prompt: str, user_message: str, max_tokens: int = 1500) -
     return _groq_post(messages, max_tokens)
 
 
-def call_claude_with_history(system_prompt: str, messages: list, max_tokens: int = 1500) -> str:
+def call_groq_with_history(system_prompt: str, messages: list, max_tokens: int = 1500) -> str:
     """Multi-turn call with conversation history via Groq."""
     full_messages = [{"role": "system", "content": system_prompt}] + messages
     return _groq_post(full_messages, max_tokens)
@@ -117,7 +116,7 @@ Guidelines:
 
     history = [{"role": m["role"], "content": m["content"]} for m in st.session_state.chat_history[-8:]]
     history.append({"role": "user", "content": question})
-    return call_claude_with_history(system, history)
+    return call_groq_with_history(system, history)
 
 
 
@@ -137,7 +136,7 @@ Return ONLY this JSON format (no markdown, no explanation):
   }}
 ]"""
 
-    raw = call_claude(system, prompt, max_tokens=2000)
+    raw = call_groq(system, prompt, max_tokens=2000)
     try:
         clean = raw.strip().replace("```json", "").replace("```", "").strip()
         questions = json.loads(clean)
@@ -179,8 +178,8 @@ Provide:
 
 Be encouraging, specific, and actionable."""
 
-    return call_claude(system, prompt)
-
+    return call_groq(system, prompt)
+    
 
 def render_sidebar():
     with st.sidebar:
