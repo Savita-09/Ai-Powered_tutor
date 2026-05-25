@@ -41,4 +41,4 @@
 | Geometry | Astronomy | Machine Learning | Indian History | Grammar |
 | Linear Algebra | Environmental Science | Web Development | Political Science | Comprehension |
 
-## Project Link : https://ai-poweredtutor.streamlit.app
+## 🌐 Live Demo : https://ai-poweredtutor.streamlit.app
