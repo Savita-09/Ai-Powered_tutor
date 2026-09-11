@@ -21,7 +21,7 @@ with open("style.css") as f:
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_API_KEY = "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"
 
-MODEL = "llama-3.3-70b-versatile"
+MODEL = "openai/gpt-oss-120b"
 
 SUBJECTS = {
     "Mathematics": ["Algebra", "Calculus", "Statistics", "Geometry", "Linear Algebra"],
